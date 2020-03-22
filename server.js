@@ -1,30 +1,18 @@
 
-const mongoose = require("mongoose");
+require('./config/config');
+require("./db/mongoose");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
-const Data = require("./data");
 
 const API_PORT = process.env.PORT || 3001;
 const app = express();
 const router = express.Router(); 
-const cors = require('cors')
+const cors = require('cors');
 
-// MongoDB database
-const dbRoute = "mongodb://admin:akillibidik2020@ds163182.mlab.com:63182/bidikdb";
-
-// connects our back end code with the database
-mongoose.connect(
-    dbRoute,
-    { useNewUrlParser: true }
-);
-
-let db = mongoose.connection;
-
-db.once("open", () => console.log("connected to the database"));
-
-// checks if connection with the database is successful.
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+var { Question } = require('./models/question');
+var { User } = require('./models/user');
 
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
@@ -32,10 +20,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger("dev"));
 
-// this method adds new data in our database
-router.post("/putData", (req, res) => {
-    let data = new Data();
+//Get all users
+router.get('/users', cors(), (req, res) => {
+    User.find({}).then((users) => {
+        res.send({ users });
+    }, (err) => {
+        res.status(400).send(err);
+    });
+});
 
+//Add a user
+router.post('/users', cors(), (req, res) => {
+
+    /* EXTRA VALIDATIONS
     const { id, message } = req.body;
 
     if ((!id && id !== 0) || !message) {
@@ -44,18 +41,66 @@ router.post("/putData", (req, res) => {
             error: "INVALID INPUTS"
         });
     }
-    data.message = message;
-    data.id = id;
-    data.save(err => {
-        if (err) return res.json({ success: false, error: err });
-        return res.json({ success: true });
+
+    */
+
+    var user = new User({
+        id: req.body.id,
+        username: req.body.username,
+        name: req.body.name,
+        surname: req.body.surname,
+        role: req.body.role,
+        grade: req.body.grade,
+        email: req.body.email,
+        language: req.body.language
+    });
+
+    user.save().then((doc) => {
+        res.send(doc);
+    }, (err) => {
+        res.status(400).send(err);
     });
 });
 
-router.get("/getData", cors(), (req, res) => {
-    Data.find((err, data) => {
-        if (err) return res.json({ success: false, error: err });
-        return res.json({ success: true, data: data });
+//Get all questions
+router.get('/questions', cors(), (req, res) => {
+    Question.find({}).then((questions) => {
+        res.send({ questions });
+    }, (err) => {
+        res.status(400).send(err);
+    });
+});
+
+//Add a question
+router.post('/questions', cors(), (req, res) => {
+
+    /* EXTRA VALIDATIONS
+    const { id, message } = req.body;
+
+    if ((!id && id !== 0) || !message) {
+        return res.json({
+            success: false,
+            error: "INVALID INPUTS"
+        });
+    }
+
+    */
+
+    var question = new Question({
+        id: req.body.id,
+        title: req.body.title,
+        question: req.body.question,
+        optiona: req.body.optiona,
+        optionb: req.body.optionb,
+        optionc: req.body.optionc,
+        optiond: req.body.optiond,
+        correctAnswer: req.body.correctAnswer
+    });
+
+    question.save().then((doc) => {
+        res.send(doc);
+    }, (err) => {
+        res.status(400).send(err);
     });
 });
 

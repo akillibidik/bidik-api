@@ -1,0 +1,7 @@
+{
+    "development": 
+    {
+        "MONGODB_URI": "mongodb://admin:akillibidik2020@ds163182.mlab.com:63182/bidikdb"
+    }
+    
+}
