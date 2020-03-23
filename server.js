@@ -71,6 +71,21 @@ router.get('/questions', cors(), (req, res) => {
     });
 });
 
+//Get a question with ID
+router.get('/questions/:id', cors(), (req, res) => {
+    var id = req.params.id;
+    Question.findOne({
+        id: id
+    }).then((question) => {
+        if (!question) {
+            return res.status(404).send();
+        }
+        res.send({ question });
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
+
 //Add a question
 router.post('/questions', cors(), (req, res) => {
 
