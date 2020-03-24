@@ -20,9 +20,26 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger("dev"));
 
-//Get all users
+//Get users with query
 router.get('/users', cors(), (req, res) => {
-    User.find({}).then((users) => {
+    var query = {$and: [{}]};
+
+    if(req.query.id)
+        query.$and.push({'id': req.query.id});
+    if(req.query.username)
+        query.$and.push({'username': req.query.username});
+    if(req.query.surname)
+        query.$and.push({'surname': req.query.surname});
+    if(req.query.role)
+        query.$and.push({'role': req.query.role});
+    if(req.query.grade)
+        query.$and.push({'grade': req.query.grade});
+    if(req.query.email)
+        query.$and.push({'email': req.query.email});
+    if(req.query.language)
+        query.$and.push({'language': req.query.language});
+
+    User.find(query).then((users) => {
         res.send({ users });
     }, (err) => {
         res.status(400).send(err);
@@ -31,19 +48,6 @@ router.get('/users', cors(), (req, res) => {
 
 //Add a user
 router.post('/users', cors(), (req, res) => {
-
-    /* EXTRA VALIDATIONS
-    const { id, message } = req.body;
-
-    if ((!id && id !== 0) || !message) {
-        return res.json({
-            success: false,
-            error: "INVALID INPUTS"
-        });
-    }
-
-    */
-
     var user = new User({
         id: req.body.id,
         username: req.body.username,
@@ -62,21 +66,21 @@ router.post('/users', cors(), (req, res) => {
     });
 });
 
-//Get all questions
-router.get('/questions', cors(), (req, res) => {
-    Question.find({}).then((questions) => {
-        res.send({ questions });
-    }, (err) => {
-        res.status(400).send(err);
-    });
-});
 
-//Get a question with ID
-router.get('/questions/:id', cors(), (req, res) => {
-    var id = req.params.id;
-    Question.findOne({
-        id: id
-    }).then((question) => {
+//Get questions with query
+router.get('/questions', cors(), (req, res) => {
+
+    var query = {$and: [{}]};
+
+    if(req.query.id)
+        query.$and.push({'id': req.query.id});
+    if(req.query.title)
+        query.$and.push({'title': req.query.title});
+    if(req.query.correctAnswer)
+        query.$and.push({'correctAnswer': req.query.correctAnswer});
+
+    Question.find(query
+    ).then((question) => {
         if (!question) {
             return res.status(404).send();
         }
@@ -84,23 +88,11 @@ router.get('/questions/:id', cors(), (req, res) => {
     }).catch((e) => {
         res.status(400).send();
     });
+
 });
 
 //Add a question
 router.post('/questions', cors(), (req, res) => {
-
-    /* EXTRA VALIDATIONS
-    const { id, message } = req.body;
-
-    if ((!id && id !== 0) || !message) {
-        return res.json({
-            success: false,
-            error: "INVALID INPUTS"
-        });
-    }
-
-    */
-
     var question = new Question({
         id: req.body.id,
         title: req.body.title,
